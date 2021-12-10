@@ -19,10 +19,19 @@ from astropy.wcs import WCS
 #from astropy import units as u
 import skimage.measure as sk
 
+# Need this for histogram equalisation
+from skimage import exposure
+
+
+# subroutine definition
 def tellme(s):
     print(s)
     plt.title(s, fontsize=16)
     plt.draw()
+
+################################
+# Start of program
+################################
 
 imagefile = sys.argv[1]
 print("Opening ", imagefile)
@@ -51,11 +60,19 @@ fig.add_subplot(121, projection=wcs)
 #ax.set_ylabel('Dec')
 #ax = plt.subplot(projection=wcs, label='overlays')
 
-#  Plot the image data 
-plt.imshow(image_data, cmap='hot', origin='lower', vmin=10, vmax=200)
+# Histogram equalize image data for better display
+#histeqarr = exposure.equalize_hist(image_data)
+#histeqarr = image_data
 
-#plt.xlabel('RA')
-#plt.ylabel('Dec')
+# now calculate 10th and 90th percentile for display
+lowval = np.percentile(image_data, 10)
+highval = np.percentile(image_data, 90)
+
+#  Plot the image data 
+plt.imshow(image_data, cmap='hot', origin='lower', vmin=lowval, vmax=highval)
+
+plt.xlabel('RA')
+plt.ylabel('Dec')
 
 # Draw the image
 plt.draw()
@@ -110,6 +127,7 @@ plt.plot(x_values, y_values)
 # cval=0.0, *, reduce_func=<function mean>)
 
 cutline = sk.profile_line(image_data, point1[0], point2[0], linewidth=3,mode='reflect')
+
 
 #fig.add_subplot(122, projection=wcs)
 fig.add_subplot(122)
